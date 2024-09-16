@@ -1,6 +1,6 @@
 query {
-    todos {
-        id,
+    todos(order_by: {id: desc}) {
+        id
         title
     }
 }
