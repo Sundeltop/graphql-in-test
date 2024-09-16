@@ -1,5 +1,6 @@
 query {
     todos {
-        id
+        id,
+        title
     }
 }

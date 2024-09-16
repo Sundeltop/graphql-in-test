@@ -2,7 +2,7 @@ package com.example.service;
 
 import com.example.model.GraphQlQuery;
 import com.example.model.TodoJson;
-import io.restassured.response.ValidatableResponse;
+import io.restassured.response.ResponseBodyExtractionOptions;
 
 import java.util.List;
 import java.util.Map;
@@ -17,11 +17,10 @@ public class TodosService {
     public TodosService() {
     }
 
-    public List<String> getTodos() {
+    public List<TodoJson> getTodos() {
         return graphQlRequest(new GraphQlQuery("graphql/todos.graphql"))
-                .extract()
-                .body()
-                .path("data.todos.id");
+                .jsonPath()
+                .getList("data.todos", TodoJson.class);
     }
 
     public String getTodoTitle(int id) {
@@ -29,8 +28,6 @@ public class TodosService {
                 .setVariables(Map.of("id", id));
 
         return graphQlRequest(query)
-                .extract()
-                .body()
                 .path("data.todos_by_pk.title");
     }
 
@@ -39,19 +36,19 @@ public class TodosService {
                 .setVariables(Map.of("title", title));
 
         return graphQlRequest(query)
-                .extract()
-                .body()
                 .jsonPath()
                 .getObject("data.insert_todos.returning[0]", TodoJson.class);
     }
 
-    private ValidatableResponse graphQlRequest(GraphQlQuery query) {
+    private ResponseBodyExtractionOptions graphQlRequest(GraphQlQuery query) {
         return given()
                 .auth()
                 .oauth2(BEARER_TOKEN)
                 .body(query)
                 .when()
                 .post(URL)
-                .then();
+                .then()
+                .extract()
+                .body();
     }
 }
