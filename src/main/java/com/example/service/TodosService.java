@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.model.GraphQlQuery;
+import com.example.model.Todo;
 import io.restassured.response.ValidatableResponse;
 
 import java.util.List;
@@ -31,6 +32,17 @@ public class TodosService {
                 .extract()
                 .body()
                 .path("data.todos_by_pk.title");
+    }
+
+    public Todo createTodo(String title) {
+        final GraphQlQuery query = new GraphQlQuery("graphql/insert_todo.graphql")
+                .setVariables(Map.of("title", title));
+
+        return graphQlRequest(query)
+                .extract()
+                .body()
+                .jsonPath()
+                .getObject("data.insert_todos.returning[0]", Todo.class);
     }
 
     private ValidatableResponse graphQlRequest(GraphQlQuery query) {
