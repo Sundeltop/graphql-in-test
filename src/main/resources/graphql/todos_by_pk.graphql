@@ -1,0 +1,6 @@
+query($id: Int!) {
+    todos_by_pk(id: $id) {
+        id
+        title
+    }
+}
